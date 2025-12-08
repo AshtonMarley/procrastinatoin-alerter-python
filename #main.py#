@@ -1,0 +1,51 @@
+import keyboard
+import pyautogui
+import time
+import tkinter
+import multiprocessing
+
+
+
+class compInputCapture:
+  def __init__(self):
+
+    self.TIME_delay = 0.01
+    
+  def capMouseVel(self):
+    x1,y1 = pyautogui.position()
+    time.sleep(self.TIME_delay)
+    x2,y2 = pyautogui.position()
+    xvel = abs(x2 - x1) / self.TIME_delay
+    yvel = abs(y2 - y1) / self.TIME_delay
+    return xvel, yvel
+  
+  def capKeyboardVel(self):
+    keyboard.record()
+    
+    
+class windowGUI:
+  def __init__(self):
+    self.width, self.height = 800, 800
+    self.title = "Hello world"
+  
+  def window(self):
+    root = tkinter.Tk()
+    print(root.winfo_height())
+    
+    
+    root.mainloop()
+    
+    
+
+def main():
+  test = compInputCapture()
+  win = windowGUI()
+  
+  win.window()
+  
+  #t = test.capMouseVel()
+  
+  #print(t)
+  
+if __name__ == "__main__":
+  main()

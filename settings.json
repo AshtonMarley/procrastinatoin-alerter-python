@@ -1,6 +1,5 @@
 {
-    "keyboard_view_enabled": true,
-    "mouse_view_enabled": true,
-    "screen_capture_enabled": true,
-    "capture_folder": ""
+    "keyboard_watch": "CheckState.Checked",
+    "mouse_watch": "CheckState.Checked",
+    "screen_watch": "CheckState.Checked"
 }

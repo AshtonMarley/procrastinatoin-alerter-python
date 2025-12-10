@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 
+
 SETTINGS_FILE = "settings.json"
 
 
@@ -40,7 +41,23 @@ class MainWindow(QWidget):
     self.settingsBox()
     
     
-
+  def apply_changes(self):
+    # get the states of the checkboxes
+    self.checkbox_state_keyboard = self.watch_keyboard.checkState()
+    self.checkbox_state_mouse    = self.watch_mouse.checkState()
+    self.checkbox_state_screen   = self.watch_screen.checkState()
+    
+    data = {
+      "keyboard_watch": str(self.checkbox_state_keyboard),
+      "mouse_watch": str(self.checkbox_state_mouse),
+      "screen_watch": str(self.checkbox_state_screen)
+    }
+    
+    with open("settings.json", "w") as f:
+      json.dump(data, f, indent = 4)
+  
+  def clear_settings(self):
+    pass
     
   def settingsBox(self):
     """
@@ -58,14 +75,14 @@ class MainWindow(QWidget):
     """
     layout_vertical = QVBoxLayout() # setup the layout for vertical
     label_title =     QLabel("Settings Panel")
-    watch_keyboard =  QCheckBox("Keyboard Listen")
-    watch_mouse =     QCheckBox("Mouse Listen")
-    watch_screen =    QCheckBox("Screen Listen")
+    self.watch_keyboard =  QCheckBox("Keyboard Listen")
+    self.watch_mouse =     QCheckBox("Mouse Listen")
+    self.watch_screen =    QCheckBox("Screen Listen")
     
     layout_vertical.addWidget(label_title)
-    layout_vertical.addWidget(watch_keyboard)
-    layout_vertical.addWidget(watch_mouse)
-    layout_vertical.addWidget(watch_screen)
+    layout_vertical.addWidget(self.watch_keyboard)
+    layout_vertical.addWidget(self.watch_mouse)
+    layout_vertical.addWidget(self.watch_screen)
     
     
     layout_horizontal = QHBoxLayout()
@@ -77,13 +94,10 @@ class MainWindow(QWidget):
     
     self.layout_main.addLayout(layout_vertical)
     self.layout_main.addLayout(layout_horizontal)
-    
-    # get the states of the checkboxes
-    checkbox_state_keyboard = watch_keyboard.checkState()
-    checkbox_state_mouse    = watch_mouse.checkState()
-    checkbox_state_screen   = watch_screen.checkState()
   
-
+  
+    button_confirm.clicked.connect(self.apply_changes)
+    button_cancel.clicked.connect(self.clear_settings)
     
 
 def main():

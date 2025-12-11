@@ -1,5 +1,5 @@
 {
     "keyboard_watch": "CheckState.Checked",
     "mouse_watch": "CheckState.Checked",
-    "screen_watch": "CheckState.Checked"
+    "screen_watch": "CheckState.Unchecked"
 }

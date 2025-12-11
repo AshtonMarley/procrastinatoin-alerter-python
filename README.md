@@ -56,4 +56,4 @@ If you modify or redistribute this tool, you must preserve transparency and user
 ```terminal
 git clone https://github.com/AshtonMarley/procrastinatoin-alerter-python
 cd procrastinatoin-alerter-python
-pip install -r requirements.txt
+source ./install.sh

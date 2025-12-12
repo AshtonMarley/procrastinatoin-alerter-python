@@ -2,12 +2,17 @@ import pyautogui
 import keyboard
 import json
 import time
+import colors
 
 
-class compInputCapture:
+class input_capture:
   def __init__(self):
     self.TIME_delay = 0.01
     self.state_mouse = False
+
+
+    # colors main color 
+    self.color_library = colors.bcolors()
     
   def capMouseVel(self):
     x1,y1 = pyautogui.position()
@@ -26,7 +31,10 @@ class compInputCapture:
   def keyboardCapture(self):
     pass
   
+  def test_function(self):
+    print(f"{self.color_library.OKGREEN} MAIN PROCESS RUNNNING {self.color_library.ENDC}")
   
   
-def _runProc(permissions): # permissions should be a dictionary
-  print("Hello world!")
+def main():
+  main_function = input_capture()
+  main_function.test_function()

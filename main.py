@@ -6,9 +6,10 @@ from PyQt6.QtWidgets import (
     QPushButton, QCheckBox, QFileDialog, QMessageBox, QGridLayout, QSlider
 )
 from PyQt6.QtCore import Qt
-import colors
 import multiprocessing
 import main_process
+from colorama import Fore, Back, Style
+import console_logs
 
 
 SETTINGS_FILE = "settings.json"
@@ -17,35 +18,31 @@ SETTINGS_FILE = "settings.json"
 class MainWindow(QWidget):
   def __init__(self):
     super().__init__()
-    # define the positions for the settings box
+    """
+      GUI VARIABLES
+    """
     self.title_row =          1
     self.keyboard_watch_row = 2
     self.mouse_watch_row =    3
     self.screen_watch_row =   4
     self.confirm_button_row = 5
     self.cancel_button_row =  6
-    
     self.default_col =        0
     self.align_center =       Qt.AlignmentFlag.AlignCenter # position flag
-    
-
-    # default setup for window
-    self.title =         "Settings Panel"
-    self.window_width =  200
-    self.window_height = 200
-    
+    self.title =              "Settings Panel"
+    self.window_width =       200
+    self.window_height =      200
     self.setWindowTitle(self.title)
     self.setFixedSize(self.window_width, self.window_height)
-    
-    self.layout_main = QVBoxLayout()
+    self.layout_main =        QVBoxLayout()
     self.setLayout(self.layout_main)
     self.settingsBox()
-
-
     self.checkbox_not_checked = False
 
-    self.color_library = colors.bcolors()
 
+    # MULTITHREADING SECTION VARIABLES
+    self.existing_process = []
+    self.proc = None
 
   def start_separate_process(self):
     main_process.main()
@@ -66,9 +63,10 @@ class MainWindow(QWidget):
         self.watch_keyboard.setChecked(self.status_keyboard)
         self.watch_mouse.setChecked(self.status_mouse)
         self.watch_screen.setChecked(self.status_screen)
-        print(f"[ {self.color_library.OKGREEN}LOADED ]: pre existing settings from file: {SETTINGS_FILE} {self.color_library.ENDC}")
+        
     else:
-      print("No Existing Settings file... IGNORE")
+      #print("No Existing Settings file... IGNORE")
+      console_logs.Logs.ignore("No existing settings file")
     
   def apply_changes(self):
     # get the states of the checkboxes
@@ -86,7 +84,23 @@ class MainWindow(QWidget):
       with open("settings.json", "w") as f:
         json.dump(data, f, indent = 4)
     except OSError:
-      print(f"{self.color_library.FAIL} COULD NOT OPEN FILE: {SETTINGS_FILE} {self.color_library.ENDC}")
+      console_logs.Logs.error(f"could not open file: {SETTINGS_FILE}!")
+
+
+    try:
+      if self.proc is None or not self.proc.is_alive():
+        self.proc = multiprocessing.Process(target=self.start_separate_process)
+        self.proc.start()
+        console_logs.Logs.success("Started process, enjoy!")
+      else:
+        self.proc.terminate()
+        self.proc.join()
+        self.proc = None
+        console_logs.Logs.ignore("Process already running...terminating")
+
+    except Exception as e:
+      console_logs.Logs.error(f"failed to create process!: {e}")
+
   
   def clear_settings(self):
     self.watch_keyboard.setChecked(self.checkbox_not_checked)
@@ -121,7 +135,6 @@ class MainWindow(QWidget):
     self.intensity_bar.setMinimum(0)
     self.intensity_bar.setMaximum(100)
 
-
     
     layout_vertical.addWidget(label_title)
     layout_vertical.addWidget(self.watch_keyboard)
@@ -148,7 +161,7 @@ class MainWindow(QWidget):
     
 
 def main():
-  #os.system("clear")
+  os.system("clear")
   app = QApplication([])
   w = MainWindow()
   w.show()

@@ -35,9 +35,25 @@ class input_capture:
     console_logs.Logs.success("main process running")
 
   
-  
+class read_settings:
+  def __init__(self):
+    self.SETTINGS_FILE = "settings.json"
+
+  def open_file(self):
+    if os.path.exists(self.SETTINGS_FILE):
+      console_logs.Logs.success(f"{self.SETTINGS_FILE} located")
+      with open(self.SETTINGS_FILE, "r")as file:
+        data = json.load(file)
+    
+    return data
+
 def main():
   main_function = input_capture()
+  function_load_settings = read_settings()
 
-  while True:
-    print(main_function.capture_mouse_velocity())
+  json_file_data = function_load_settings.open_file()
+
+  print(json_file_data)
+
+
+main()

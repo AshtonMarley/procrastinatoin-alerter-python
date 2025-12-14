@@ -5,8 +5,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout,
     QPushButton, QCheckBox, QFileDialog, QMessageBox, QGridLayout, QSlider
 )
-from PyQt6.QtCore import Qt
-import multiprocessing
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 import main_process
 from colorama import Fore, Back, Style
 import console_logs
@@ -15,12 +14,18 @@ import console_logs
 SETTINGS_FILE = "settings.json"
 
 
+class Process(QThread):
+  finished = pyqtSignal()
+
+  def run(self):
+    main_process.main()
+    self.finished.emit()
+
+
 class MainWindow(QWidget):
   def __init__(self):
     super().__init__()
-    """
-      GUI VARIABLES
-    """
+    # GUI vars
     self.title_row =          1
     self.keyboard_watch_row = 2
     self.mouse_watch_row =    3
@@ -38,16 +43,23 @@ class MainWindow(QWidget):
     self.setLayout(self.layout_main)
     self.settingsBox()
     self.checkbox_not_checked = False
+    self.button_clicked = False
+
+    #multiprocessing var
+    self.worker_thread = None
 
 
-    # MULTITHREADING SECTION VARIABLES
-    self.existing_process = []
-    self.proc = None
+
+  def on_process_finished(self):
+    # Handle the process completion
+    console_logs.Logs.success("Background process completed!")
 
   def start_separate_process(self):
-    main_process.main()
-
-
+    # Start the background task in a separate thread
+    if self.worker_thread is None or not self.worker_thread.isRunning():
+      self.worker_thread = Process()
+      self.worker_thread.finished.connect(self.on_process_finished)
+      self.worker_thread.start()
 
   def preload_settings(self):
     # check if settings file exists
@@ -69,6 +81,14 @@ class MainWindow(QWidget):
       console_logs.Logs.ignore("No existing settings file")
     
   def apply_changes(self):
+    # change the text of the button
+    if not self.button_clicked:
+      self.button_confirm.setText("Stop")
+      self.button_clicked = True
+    elif self.button_clicked:
+      self.button_confirm.setText("Start")
+      self.button_clicked = False
+
     # get the states of the checkboxes
     self.checkbox_state_keyboard = self.watch_keyboard.isChecked()
     self.checkbox_state_mouse    = self.watch_mouse.isChecked()
@@ -88,15 +108,12 @@ class MainWindow(QWidget):
 
 
     try:
-      if self.proc is None or not self.proc.is_alive():
-        self.proc = multiprocessing.Process(target=self.start_separate_process)
-        self.proc.start()
-        console_logs.Logs.success("Started process, enjoy!")
+      if self.worker_thread is None or not self.worker_thread.isRunning():
+        self.start_separate_process()
       else:
-        self.proc.terminate()
-        self.proc.join()
-        self.proc = None
-        console_logs.Logs.ignore("Process already running...terminating")
+        console_logs.Logs.success("Stopping current process")
+        self.worker_thread.terminate()
+        self.worker_thread.wait()
 
     except Exception as e:
       console_logs.Logs.error(f"failed to create process!: {e}")
@@ -144,9 +161,9 @@ class MainWindow(QWidget):
     
     
     layout_horizontal = QHBoxLayout()
-    button_confirm =    QPushButton("Apply")
+    self.button_confirm =    QPushButton("Start")
     button_cancel =     QPushButton("Cancel")
-    layout_horizontal.addWidget(button_confirm)
+    layout_horizontal.addWidget(self.button_confirm)
     layout_horizontal.addWidget(button_cancel)
 
     
@@ -154,7 +171,7 @@ class MainWindow(QWidget):
     self.layout_main.addLayout(layout_horizontal)
   
   
-    button_confirm.clicked.connect(self.apply_changes)
+    self.button_confirm.clicked.connect(self.apply_changes)
     button_cancel.clicked.connect(self.clear_settings)
     self.preload_settings()
 

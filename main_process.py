@@ -6,6 +6,7 @@ import os
 import sys
 import ctypes
 import console_logs
+import multiprocessing
 
 
 class input_capture:
@@ -28,12 +29,11 @@ class input_capture:
     self.state_mouse = False
 
   
-  def keyboardCapture(self):
+  def capture_keyboard(self):
     pass
-  
-  def test_function(self):
-    console_logs.Logs.success("main process running")
 
+  def capture_screen(self):
+    pass
   
 class read_settings:
   def __init__(self):
@@ -47,13 +47,27 @@ class read_settings:
     
     return data
 
+
 def main():
-  main_function = input_capture()
+  loop_bool = True
+  threads_active = []
+  main_function =          input_capture()
   function_load_settings = read_settings()
 
   json_file_data = function_load_settings.open_file()
+  func_keyboard = json_file_data['keyboard_watch']
+  func_mouse = json_file_data['mouse_watch']
+  func_screen = json_file_data['screen_watch']
 
-  print(json_file_data)
 
+  proc_keyboard = multiprocessing.Process(target=main_function.capture_keyboard)
+  proc_mouse =    multiprocessing.Process(target=main_function.capture_mouse_velocity)
+  proc_screen =    multiprocessing.Process(target=main_function.capture_screen)
+  
 
-main()
+  if func_keyboard:
+    proc_keyboard.start()
+  if func_mouse:
+    proc_mouse.start()
+  if func_screen:
+    proc_screen.start()

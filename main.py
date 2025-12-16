@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout,
     QPushButton, QCheckBox, QFileDialog, QMessageBox, QGridLayout, QSlider
@@ -139,38 +138,28 @@ class MainWindow(QWidget):
     
     """
     
-    
     layout_vertical = QVBoxLayout() # setup the layout for vertical
     label_title =     QLabel("Settings Panel")
     self.watch_keyboard =  QCheckBox("Keyboard Listen")
     self.watch_mouse =     QCheckBox("Mouse Listen")
     self.watch_screen =    QCheckBox("Screen Listen")
-
-    # title for the intensitybar
+    layout_horizontal = QHBoxLayout()
+    self.button_confirm =    QPushButton("Start")
+    button_cancel =     QPushButton("Cancel")
     self.title_intensity_bar = QLabel("Intensity")
     self.intensity_bar =   QSlider(orientation=Qt.Orientation.Horizontal)
+
     self.intensity_bar.setMinimum(0)
     self.intensity_bar.setMaximum(100)
-
-    
     layout_vertical.addWidget(label_title)
     layout_vertical.addWidget(self.watch_keyboard)
     layout_vertical.addWidget(self.watch_mouse)
     layout_vertical.addWidget(self.watch_screen)
     layout_vertical.addWidget(self.intensity_bar)
-    
-    
-    layout_horizontal = QHBoxLayout()
-    self.button_confirm =    QPushButton("Start")
-    button_cancel =     QPushButton("Cancel")
     layout_horizontal.addWidget(self.button_confirm)
     layout_horizontal.addWidget(button_cancel)
-
-    
     self.layout_main.addLayout(layout_vertical)
     self.layout_main.addLayout(layout_horizontal)
-  
-  
     self.button_confirm.clicked.connect(self.apply_changes)
     button_cancel.clicked.connect(self.clear_settings)
     self.preload_settings()

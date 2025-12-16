@@ -1,5 +1,5 @@
 {
-    "keyboard_watch": true,
-    "mouse_watch": true,
-    "screen_watch": false
+    "keyboard_watch": false,
+    "mouse_watch": false,
+    "screen_watch": true
 }
